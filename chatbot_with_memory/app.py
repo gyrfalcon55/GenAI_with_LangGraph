@@ -23,11 +23,24 @@ if user_input:
     with st.chat_message("user"):
         st.write(user_input)
 
-    result = workflow.invoke({'messages':[HumanMessage(content=user_input)]}, config=config)
-    ai_message = result['messages'][-1].content
-
-    st.session_state['message_history'].append({'role':'assistant','content':ai_message})
     with st.chat_message("assistant"):
-        
-        st.write(ai_message)
+        placeholder = st.empty()
+        full_response = ""
+
+        for message_chunk, metadata in workflow.stream(
+            {"messages": [HumanMessage(content=user_input)]},
+            stream_mode="messages",
+            config=config
+        ):
+            if message_chunk.content:
+                full_response += message_chunk.content
+                placeholder.markdown(full_response)
+
+        # Store final response
+        st.session_state['message_history'].append({
+            'role': 'assistant',
+            'content': full_response
+        })
+
+    
 
