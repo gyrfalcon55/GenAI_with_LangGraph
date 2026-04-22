@@ -1,10 +1,10 @@
-from llm_backend import workflow
+from llm_backend import workflow, retrieve_all_threads
 import streamlit as st 
 from langchain.messages import HumanMessage
 import uuid
 from langchain_core.messages import HumanMessage, AIMessage
 
-st.title("----- My_ChatBot -----")
+st.markdown("<h1 style='text-align: center; color: white;'>ChatBot with SQLite Memory</h1>", unsafe_allow_html=True)
 
 def genearte_uuid():
     thread_id = uuid.uuid4()
@@ -35,24 +35,21 @@ if 'thread_id' not in st.session_state:
     st.session_state['thread_id'] = genearte_uuid()
 
 if 'chat_threads' not in st.session_state:
-    st.session_state['chat_threads'] = []
+    st.session_state['chat_threads'] = retrieve_all_threads()
 
 add_thread(st.session_state['thread_id'])
 
-for message in st.session_state['message_history']:
-    with st.chat_message(message['role']):
-        st.text(message['content'])
 
-
-
-
-user_input = st.chat_input("Type your message : ")
 
 config = {'configurable':{'thread_id':st.session_state['thread_id']}}
 
 st.sidebar.title('LangGraph Chatbot')
 if st.sidebar.button('New Chat'):
     reset_chat()
+
+
+
+    
 st.sidebar.header('My conversations')
 
 for thread_id in st.session_state['chat_threads'][::-1]:
@@ -71,6 +68,16 @@ for thread_id in st.session_state['chat_threads'][::-1]:
             temp_messages.append({'role': role, 'content': msg.content})
 
         st.session_state['message_history'] = temp_messages
+
+for message in st.session_state['message_history']:
+    with st.chat_message(message['role']):
+        st.text(message['content'])
+
+
+
+
+user_input = st.chat_input("Type your message : ")
+
 
 
 if user_input:
