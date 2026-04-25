@@ -3,6 +3,10 @@ import streamlit as st
 from langchain.messages import HumanMessage
 import uuid
 from langchain_core.messages import HumanMessage, AIMessage
+from langsmith import traceable
+from dotenv import load_dotenv
+
+load_dotenv()
 
 st.markdown("<h1 style='text-align: center; color: white;'>ChatBot with SQLite Memory</h1>", unsafe_allow_html=True)
 
@@ -41,7 +45,11 @@ add_thread(st.session_state['thread_id'])
 
 
 
-config = {'configurable':{'thread_id':st.session_state['thread_id']}}
+config = {'configurable':{'thread_id':st.session_state['thread_id']},
+          'metadata':{'thread_id':st.session_state['thread_id']},
+          'run_name':'chat_run'
+          
+          }
 
 st.sidebar.title('LangGraph Chatbot')
 if st.sidebar.button('New Chat'):
@@ -51,6 +59,8 @@ if st.sidebar.button('New Chat'):
 
     
 st.sidebar.header('My conversations')
+
+
 
 for thread_id in st.session_state['chat_threads'][::-1]:
     t_id = str(thread_id)
